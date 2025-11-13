@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Encryption with Caesar Cipher</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            color: white;
+            text-align: center;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+        }
+        input[type="file"], input[type="number"] {
+            margin: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            margin: 10px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #70db7d;
+        }
+        button:hover {
+            background: #5cb85c;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File Encryption using Caesar Cipher</h1>
+        <input type="file" id="fileInput">
+        <input type="number" id="key" placeholder="Enter Key">
+        <br>
+        <button onclick="encryptFile()">Encrypt</button>
+        <button onclick="decryptFile()">Decrypt</button>
+        <button onclick="saveEncryptedFile()">Save Encrypted File</button>
+        <button onclick="saveDecryptedFile()">Save Decrypted File</button>
+        <br>
+        <div id="message"></div>
+    </div>
+    
+    <script>
+        function caesarCipherBinary(data, shift) {
+            return new Uint8Array(data.map(byte => (byte + shift) % 256));
+        }
+
+        function encryptFile() {
+            const file = document.getElementById('fileInput').files[0];
+            const key = parseInt(document.getElementById('key').value);
+            if (!file || isNaN(key)) {
+                alert('Please select a file and enter a valid key');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const byteArray = new Uint8Array(event.target.result);
+                const encryptedBytes = caesarCipherBinary(byteArray, key);
+                document.getElementById('message').textContent = 'File encrypted successfully!';
+                saveFile(encryptedBytes, 'encrypted.dat');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function decryptFile() {
+            const file = document.getElementById('fileInput').files[0];
+            const key = parseInt(document.getElementById('key').value);
+            if (!file || isNaN(key)) {
+                alert('Please select a file and enter a valid key');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const byteArray = new Uint8Array(event.target.result);
+                const decryptedBytes = caesarCipherBinary(byteArray, -key);
+                document.getElementById('message').textContent = 'File decrypted successfully!';
+                saveFile(decryptedBytes, 'decrypted_' + file.name);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function saveFile(byteArray, fileName) {
+            const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = fileName;
+            a.click();
+        }
+    </script>
+</body>
+</html>
